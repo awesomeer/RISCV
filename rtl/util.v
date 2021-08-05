@@ -142,7 +142,7 @@ module DIV
     input clk
 );
     
-    parameter DELAY = 8'd18;
+    parameter DELAY = 8'd13;
     wire [63:0] signed_div;
     wire [63:0] unsigned_div;
     

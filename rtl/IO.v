@@ -265,15 +265,15 @@ endmodule
 
 module uart_tx
 (   
-    input clk,
+    input clk, //cpu_clk
     input start,
     output ready,
     input [7:0] data,
     output tx
 );
 
-    parameter CLK = 150000000;
-    parameter BAUD = (3686400);
+    parameter CLK = 200000000;
+    parameter BAUD = (115200*50);
     parameter RATE = ((CLK)/(2*BAUD)) - 1;
 
 // UART CLK Generation
@@ -384,86 +384,90 @@ module UART
 
     wire uart_en = MEN && (MADDR[31:4] == 28'h000_0003);
     
-    reg [7:0] udata;
+    wire wr_full;
+    wire wr_en = uart_en && MRW && MADDR[3:2] == 2'b01;
+    
+    wire rd_empty;
+    wire [7:0] fifo_read;
+    wire rd_en;
+    
+    FIFO fifo( 
+            .full(wr_full),
+            .din(MDATA[7:0]),
+            .wr_en(wr_en),
+            
+            .empty(rd_empty),
+            .dout(fifo_read),
+            .rd_en(rd_en),
+            
+            .clk(clk),
+            .rst(rst)
+         );   
+    
+    
+    reg [1:0] state;
+    reg ustart;
+    wire uready;
     initial begin
-        udata <= 8'd0;
+        state <= 3'd0;
     end
+    
+    assign rd_en = (state == 3'd0) && !rd_empty;
     always @(posedge clk) begin
-        if(uart_en && MRW && MADDR[3:2] == 2'b01)
-            udata <= MDATA[7:0];
-    end
     
-    
-    reg [1:0] ustate;
-    reg       ustart;
-    wire      uready;
-    
-    initial begin
-        ustate <= 2'b00;
-        ustart <= 1'b0;
-    end
-    
-    wire ubusy = ustate != 2'b00;
-    always @(posedge clk) begin
-        
         if(rst) begin
-            ustate <= 2'b00;
             ustart <= 1'b0;
+            state <= 3'd0;
         end
         else begin
         
-            case(ustate)
+            case(state)
             
-            2'b00: begin
-                
-                if(uart_en && MRW && MADDR[3:2] == 2'b00 && MDATA[0]) begin
-                    ustate <= 2'b01;
-                    ustart <= 1'b1;
+            2'd0: begin
+                if(rd_empty) begin
+                    ustart <= 1'b0;
+                    state <= 3'd0;
                 end
                 else begin
-                    ustate <= 2'b00;
-                    ustart <= 1'b0;
+                    ustart <= 1'b1;
+                    state <= 3'd1;
                 end
-            
             end
-            2'b01: begin
+            
+            2'd1: begin
                 
-                if(!uready) begin
-                    ustate <= 2'b10;
-                    ustart <= 1'b0;
+                if(uready) begin
+                    ustart <= 1'b1;
+                    state <= 3'd1;
                 end
                 else begin
-                    ustate <= 2'b01;
-                    ustart <= 1'b1;
+                    ustart <= 1'b0;
+                    state <= 3'd2;
                 end
                 
-
             end
-            2'b10: begin
-               
-               if(uready) ustate <= 2'b00;
-               else ustate <= 2'b10;
+            
+            2'd2: begin
                 
-                ustart <= 1'b0;
+                if(uready) state <= 3'd0;
+                else state <= 3'd2;
+                
             end
             
             default: begin
-                ustate <= 2'b00;
                 ustart <= 1'b0;
+                state <= 3'd0;
             end
-            
             endcase
         
         end
-        
-        
     end
     
-    uart_tx tx(clk, ustart, uready, udata, top.usb_tx);
+    uart_tx tx(clk, ustart, uready, fifo_read, top.usb_tx);
     
     
     assign MWAIT = uart_en ? 1'b0 : 1'bz;
-    wire [31:0] readdata = (MADDR[3:2] == 2'b00) ? {30'd0, ubusy, 1'b0} : {24'd0, udata};
+    wire [31:0] readdata = (MADDR[3:2] == 2'b00) ? {30'd0, wr_full, 1'b0} : {32'd0};
     
     assign MDATA = uart_en && !MRW ? readdata : 32'hzzzzzzzz;
     

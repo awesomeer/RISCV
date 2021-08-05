@@ -15,7 +15,9 @@ module top
     output [6:0] seg,
     output dp,
     
-    output usb_tx
+    output usb_tx,
+    
+    output [7:0] led
 );
     wire rst = !irst;
     
@@ -30,12 +32,7 @@ module top
         counter <= counter + 1;
     end
     
-    wire clk_seg = counter[17];
-
-
-    
-    //CLK_SEG clk_seg_pll(.clk_in(iclk), .clk_out(clk_seg) );
-    
+    wire clk_seg = counter[17];    
     
     wire [31:0] IADRR;
     wire [31:0] IDATA;
@@ -65,5 +62,8 @@ module top
     BPP bpc( MADDR, MDATA, MEN, MRW, MWAIT, rst, cpu_clk);
     IPCP ipc( MADDR, MDATA, MEN, MRW, MWAIT, rst, cpu_clk);
     UART uart( MADDR, MDATA, MEN, MRW, MWAIT, rst, cpu_clk);
+    
+    assign led[0] = uart.wr_full;
+    assign led[1] = uart.rd_empty;
 
 endmodule

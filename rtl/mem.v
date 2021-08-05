@@ -18,7 +18,7 @@ module IMEM
         $readmemh("C:\\Users\\mithi\\Desktop\\share\\memrom.txt", ROM);
     end
     
-    assign IDATA = ROM[IADRR[31:2]];
+    assign IDATA = ROM[IADRR[16:2]];
     
 //    reg [31:0] data = 32'd0;
 //    assign IDATA = data;
@@ -53,8 +53,8 @@ module DROM
     wire rom_en = MEN && (MADDR[31:16] == 16'h0002);
     assign MWAIT = rom_en ? 1'b0 : 1'bz;
     
-    assign MDATA = rom_en && !MRW ? ROM[MADDR[15:2]] : 32'hzzzzzzzz;
     
+    assign MDATA = rom_en && !MRW ? ROM[MADDR[15:2]] : 32'hzzzzzzzz;
     
 //    reg [31:0] data = 32'd0;
 //    assign MDATA = rom_en && !MRW ? data : 32'hzzzzzzzz;

@@ -3,18 +3,13 @@
 
 #include <math.h>
 void uart_send_char(uint8_t num){
-    //asm("nop");
-    UART0->DATA = num;
-    UART0->CTRL |= 1;
     while(UART0->CTRL & 2);
+    UART0->DATA = num;
 }
 
 void uart_send_string(uint8_t * str, uint32_t len){
-    //asm("nop");
-    //LEDS = (uint32_t) str;
     for(uint32_t i = 0; i < len; i++){
         uart_send_char(str[i]);
-        //LEDS = (uint32_t) str;
     }
 }
 

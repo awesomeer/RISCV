@@ -11,7 +11,7 @@ LD = $(VER)-ld
 			-L"/opt/riscvim/riscv32-unknown-elf/lib"
 
 CCFLAGS = -g -c -ffreestanding -nostartfiles -O1
-LIB_ARG = -Wl,-T lnks.ld -lm -lnosys -Wl,-Map map.out
+LIB_ARG = -Wl,-T lnks.ld -lm -lnosys -lriscv
 
 
 main: entry.o $(OBJ)

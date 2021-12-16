@@ -1,0 +1,1 @@
+--relax --debug typical --mt auto -L xil_defaultlib -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot fpd_cmp xil_defaultlib.fpd_cmp xil_defaultlib.glbl -log elaborate.log

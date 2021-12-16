@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2020.2 (64-bit)
+# SW Build 3064766 on Wed Nov 18 09:12:45 MST 2020
+# IP Build 3064653 on Wed Nov 18 14:17:31 MST 2020
+# Start of session at: Sat Sep 11 03:33:21 2021
+# Process ID: 9692
+# Current directory: C:/Users/mithi/RISV/RISV.runs/fpd_mul_synth_1
+# Command line: vivado.exe -log fpd_mul.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source fpd_mul.tcl
+# Log file: C:/Users/mithi/RISV/RISV.runs/fpd_mul_synth_1/fpd_mul.vds
+# Journal file: C:/Users/mithi/RISV/RISV.runs/fpd_mul_synth_1\vivado.jou
+#-----------------------------------------------------------
+source fpd_mul.tcl -notrace
+INFO: [IP_Flow 19-4838] Using cached IP synthesis design for IP fpd_mul, cache-ID = 862c19729439088d.
+INFO: [Common 17-206] Exiting Vivado at Sat Sep 11 03:34:27 2021...

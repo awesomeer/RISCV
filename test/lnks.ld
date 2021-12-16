@@ -2,25 +2,54 @@
 
 
 
-ENTRY(_start)
+ENTRY(reset)
 
+MEMORY
+{
+  ROM (RX)  : org = 0x00000000, l = 64K
+  RAM (WX)  : org = 0x80000000, l = 64K
+}
 
 SECTIONS
 {
-    . = 0x00000;
-    .text : { *(.text) *(.text.*)}
 
-    . = 0x20000;
-    .rodata : { *(.rodata .rodata.*) *(.srodata .srodata.*) }
+    .text : ALIGN(4) 
+    { 
+      *(.text.reset)
+      *(.text.startup)
+      *(.text) 
+      *(.text.*)
+      *(.rodata .rodata.*) 
+      *(.srodata .srodata.*)
+
+      . = ALIGN(4);
+      _etext = .;
+    } > ROM
     
-    . = 0x30000;
-    .data : { *(.data) *(.sdata)  }
-    .bss  : { __bss_start = ALIGN(0x4);
-              *(.bss)  *(.sbss)
+    
+    .data : ALIGN(4)
+    {
+      . = ALIGN(4);
+      _sdata = .;
 
-              . = ALIGN(0x4);
-              _end = .;
-            }
+      *(.data) 
+      *(.sdata)
+
+      . = ALIGN(4);
+      _edata = .;
+    } > RAM AT > ROM
+
+    .bss (NOLOAD) : ALIGN(4)
+    {
+      . = ALIGN(4);
+      _sbss = .;
+
+      *(.bss)
+      *(.sbss)
+
+      . = ALIGN(4);
+      _ebss = .;
+    } > RAM
     
 }
 
